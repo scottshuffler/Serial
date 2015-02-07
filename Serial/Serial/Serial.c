@@ -43,12 +43,14 @@ void serial_write(unsigned char write);
 
 int main(void)
 {
-	serial_open(9600, SERIAL_8N1);
+	serial_open(19200, SERIAL_8N1);
     while(1)
     {
-		serial_read();
-		serial_write('b');
-		_delay_ms(1000);
+		if(serial_read())
+		{
+			serial_write((unsigned char)(UDR0));
+		}
+		//_delay_ms(1000);
     }
 }
 
@@ -148,7 +150,8 @@ void serial_open(long speed, int config)
 	UBRR0L =  UBRR0;
 	//Enables TX and RX
 	UCSR0B = (1 << TXEN0) | (1 << RXEN0);
-	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);
+	//UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);
+	//UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 	
 }
 
@@ -156,7 +159,7 @@ char serial_read()
 {
 	while (!(UCSR0A & (1<<RXC0)))
 	{
-		return;
+		;
 	}
 	return UDR0;
 }
@@ -165,7 +168,7 @@ void serial_write(unsigned char write)
 {
 	while((!UCSR0A) & (1<<UDRE0))
 	{
-		return;
+		;
 	}
 	UDR0 = write;
 }
